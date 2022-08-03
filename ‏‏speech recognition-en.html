@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <!-- Input area -->
+    <label for="Speech Recognition"><h2>What is the direction?</h2></label>
+    <label for="Speech Recognition"><h4>Say right to turn to the right and say left to turn left</h4></label>
+    <input type="text" name="text" id="speechToText" placeholder="Click here and then talk" onclick="record()" size="55">
+    <br><br>
+    <button type="button" class="btn btn-primary" role="button" id= "B1">connect</button>
+    
+    <!-- Below is the script for voice recognition and conversion to text then send it to arduino-->
+    <script> //JS CODE
+        function record() {
+            var recognition = new webkitSpeechRecognition();
+            recognition.lang = "en-US";
+
+            recognition.onresult = function(event) {
+                // console.log(event);
+                document.getElementById('speechToText').value = event.results[0][0].transcript;
+            }
+            recognition.start();
+        }
+        
+        document.querySelector('#B1').addEventListener('click', async () => {
+        // Prompt user to select any serial port.
+        const port = await navigator.serial.requestPort();
+        // Wait for the serial port to open.
+        await port.open({ baudRate: 9600 });
+        
+        //send direction to arduino
+        const direction = text.toString(document.getElementById('speechToText').value);
+        const textEncoder = new TextEncoderStream();
+        const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
+        const writer = textEncoder.writable.getWriter();
+        await writer.write(direction);
+        writer.close();
+        await writableStreamClosed;
+        });
+        await port.close();
+    </script>
+    <!-- end of script -->
+</body>
+</html>
